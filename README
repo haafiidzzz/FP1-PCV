@@ -1,4 +1,4 @@
-# Mini Game Based on Hand Color
+#Mini Game Based on Hand Color
 
 Mini game berbasis deteksi warna (color tracking) menggunakan webcam. Konsep gameplay terinspirasi dari **Fruit Ninja**, di mana pemain menggunakan marker berwarna sebagai "pisau" untuk mengontrol permainan.
 
