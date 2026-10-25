@@ -1,14 +1,23 @@
-#Mini Game Based on Hand Color
+# Mini Game Based on Hand Color
 
-Mini game berbasis deteksi warna (color tracking) menggunakan webcam. Konsep gameplay terinspirasi dari **Fruit Ninja**, di mana pemain menggunakan marker berwarna sebagai "pisau" untuk mengontrol permainan.
+Nama: Hafidz Ulum Ramadhani
+NRP: 5024241014
 
-## Deskripsi
-
-Project ini mendeteksi objek berwarna tertentu (marker) melalui webcam menggunakan teknik color segmentation (HSV masking) dengan OpenCV. Posisi marker yang terdeteksi digunakan sebagai input kontrol dalam game.
+Mini game deteksi warna via webcam. Balon muncul di layar, pemain mecahin balon memakai marker warna yang terdeteksi kamera (color segmentation, tanpa MediaPipe).
 
 ## Tech Stack
+Python, OpenCV, NumPy, Pygame
 
-- Python
-- OpenCV (`opencv-python`)
-- NumPy
-- Pygame *(akan digunakan di tahap game engine)*
+## Cara Jalanin
+```bash
+pip install opencv-python numpy pygame
+python calibrate_color.py   # kalibrasi warna marker, tekan s untuk simpan
+python game_balon.py        # jalankan game
+```
+Tekan `q` untuk keluar.
+
+## Status
+- [x] Deteksi marker warna via webcam (HSV masking)
+- [x] Smoothing tracking + kalibrasi warna
+- [x] Game balon (Pygame) terintegrasi langsung dengan webcam
+- [ ] Polish (efek pecah, level kecepatan, sound)
