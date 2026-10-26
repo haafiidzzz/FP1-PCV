@@ -1,158 +1,138 @@
 import cv2
-import json
-import os
-import random
-import sys
 import numpy as np
 import pygame
+import random
+import sys
 
-CONFIG_FILE = "color_config.json"
-WIDTH, HEIGHT = 640, 480
-FPS = 30
-MIN_AREA = 300
-SMOOTHING = 0.5
-MAX_MISSING = 5
+lower_hijau = np.array([40, 100, 100])
+upper_hijau = np.array([85, 255, 255])
 
-BALLOON_RADIUS = 30
-SPAWN_INTERVAL = 1000  # ms
-BALLOON_SPEED = 1.5
-BALLOON_COLORS = [(255, 80, 80), (80, 150, 255), (80, 220, 120), (255, 200, 60)]
+cam_index = 2  
 
+lebar = 640
+tinggi = 480
+fps = 30
 
-def load_color():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE) as f:
-            cfg = json.load(f)
-        return np.array(cfg["lower"]), np.array(cfg["upper"])
-    print("color_config.json tidak ada, pakai default. Jalankan calibrate_color.py dulu.")
-    return np.array([25, 100, 100]), np.array([35, 255, 255])
+radius_balon = 30
+speed_balon = 1.5
+warna_balon = [(255, 80, 80), (80, 150, 255), (80, 220, 120), (255, 200, 60)]
 
+pygame.init()
+layar = pygame.display.set_mode((lebar, tinggi))
+pygame.display.set_caption("Pop Balon - Deteksi Warna")
+clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 36)
+font_kecil = pygame.font.SysFont(None, 22)
 
-def detect_marker(frame_bgr, lower, upper):
-    hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, lower, upper)
+cap = cv2.VideoCapture(cam_index, cv2.CAP_DSHOW)
+if not cap.isOpened():
+    print("kamera ga kebuka, cek cam_index nya")
+    sys.exit()
+
+list_balon = []  
+score = 0
+waktu_spawn_terakhir = pygame.time.get_ticks()
+
+pos_marker = None
+frame_hilang = 0
+jejak = []
+
+main_loop = True
+while main_loop:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            main_loop = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                main_loop = False
+
+    ret, frame = cap.read()
+    if not ret:
+        print("gagal baca frame")
+        break
+
+    frame = cv2.flip(frame, 1)
+    frame = cv2.resize(frame, (lebar, tinggi))
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    mask = cv2.inRange(hsv, lower_hijau, upper_hijau)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
 
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if contours:
-        c = max(contours, key=cv2.contourArea)
-        if cv2.contourArea(c) > MIN_AREA:
+    kontur, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    marker_ketemu = False
+    if len(kontur) > 0:
+        c = max(kontur, key=cv2.contourArea)
+        if cv2.contourArea(c) > 300:
             M = cv2.moments(c)
-            return (M["m10"] / M["m00"], M["m01"] / M["m00"])
-    return None
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
 
+            if pos_marker is None:
+                pos_marker = (cx, cy)
+            else:
+                sx = pos_marker[0] * 0.5 + cx * 0.5
+                sy = pos_marker[1] * 0.5 + cy * 0.5
+                pos_marker = (sx, sy)
 
-class Balloon:
-    def __init__(self):
-        self.x = random.randint(BALLOON_RADIUS, WIDTH - BALLOON_RADIUS)
-        self.y = HEIGHT + BALLOON_RADIUS
-        self.color = random.choice(BALLOON_COLORS)
-        self.alive = True
+            marker_ketemu = True
+            frame_hilang = 0
 
-    def update(self):
-        self.y -= BALLOON_SPEED
-        if self.y < -BALLOON_RADIUS:
-            self.alive = False
+    if not marker_ketemu:
+        frame_hilang += 1
+        if frame_hilang > 5:
+            pos_marker = None
 
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), BALLOON_RADIUS)
+    sekarang = pygame.time.get_ticks()
+    if sekarang - waktu_spawn_terakhir > 2000:
+        bx = random.randint(radius_balon, lebar - radius_balon)
+        by = tinggi + radius_balon
+        warna = random.choice(warna_balon)
+        list_balon.append([bx, by, warna])
+        waktu_spawn_terakhir = sekarang
 
-    def is_hit(self, px, py):
-        dist = ((self.x - px) ** 2 + (self.y - py) ** 2) ** 0.5
-        return dist < BALLOON_RADIUS + 10
+    balon_baru = []
+    for b in list_balon:
+        b[1] -= speed_balon  
 
-
-def frame_to_surface(frame_bgr):
-    frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-    frame_rgb = np.rot90(frame_rgb)
-    surface = pygame.surfarray.make_surface(frame_rgb)
-    surface = pygame.transform.flip(surface, False, True)
-    return surface
-
-
-def main():
-    lower, upper = load_color()
-    cap = cv2.VideoCapture(0)
-
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Mini Game - Pop Balon pakai Deteksi Warna")
-    clock = pygame.time.Clock()
-    font = pygame.font.SysFont(None, 36)
-
-    balloons = []
-    score = 0
-    last_spawn = pygame.time.get_ticks()
-
-    smooth = None
-    missing = 0
-    blade_trail = []
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-                running = False
-
-        ret, frame = cap.read()
-        if not ret:
-            break
-        frame = cv2.flip(frame, 1)
-        frame = cv2.resize(frame, (WIDTH, HEIGHT))
-
-        pos = detect_marker(frame, lower, upper)
-        if pos is not None:
-            missing = 0
-            smooth = pos if smooth is None else (
-                SMOOTHING * smooth[0] + (1 - SMOOTHING) * pos[0],
-                SMOOTHING * smooth[1] + (1 - SMOOTHING) * pos[1],
-            )
-        else:
-            missing += 1
-            if missing > MAX_MISSING:
-                smooth = None
-
-        now = pygame.time.get_ticks()
-        if now - last_spawn > SPAWN_INTERVAL:
-            balloons.append(Balloon())
-            last_spawn = now
-
-        for b in balloons:
-            b.update()
-            if smooth is not None and b.alive and b.is_hit(*smooth):
-                b.alive = False
+        kena = False
+        if pos_marker is not None:
+            jarak = ((b[0] - pos_marker[0]) ** 2 + (b[1] - pos_marker[1]) ** 2) ** 0.5
+            if jarak < radius_balon + 10:
+                kena = True
                 score += 10
 
-        balloons = [b for b in balloons if b.alive]
+        if b[1] > -radius_balon and not kena:
+            balon_baru.append(b)
+    list_balon = balon_baru
 
-        screen.blit(frame_to_surface(frame), (0, 0))
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_rgb = np.transpose(frame_rgb, (1, 0, 2))
+    surface_cam = pygame.surfarray.make_surface(frame_rgb)
+    layar.blit(surface_cam, (0, 0))
 
-        for b in balloons:
-            b.draw(screen)
+    for b in list_balon:
+        pygame.draw.circle(layar, b[2], (int(b[0]), int(b[1])), radius_balon)
 
-        if smooth is not None:
-            pos_int = (int(smooth[0]), int(smooth[1]))
-            blade_trail.append(pos_int)
-            if len(blade_trail) > 10:
-                blade_trail.pop(0)
-            pygame.draw.circle(screen, (255, 255, 255), pos_int, 10, 2)
+    if pos_marker is not None:
+        titik = (int(pos_marker[0]), int(pos_marker[1]))
+        jejak.append(titik)
+        if len(jejak) > 10:
+            jejak.pop(0)
+        pygame.draw.circle(layar, (255, 255, 255), titik, 10, 2)
+    else:
+        teks_warn = font_kecil.render("marker gak kedeteksi", True, (255, 80, 80))
+        layar.blit(teks_warn, (10, tinggi - 30))
 
-        if len(blade_trail) > 1:
-            pygame.draw.lines(screen, (255, 255, 255), False, blade_trail, 3)
+    if len(jejak) > 1:
+        pygame.draw.lines(layar, (255, 255, 255), False, jejak, 3)
 
-        score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
+    teks_score = font.render("Score: " + str(score), True, (255, 255, 255))
+    layar.blit(teks_score, (10, 10))
 
-        pygame.display.flip()
-        clock.tick(FPS)
+    pygame.display.flip()
+    clock.tick(fps)
 
-    cap.release()
-    pygame.quit()
-    sys.exit()
-
-
-if __name__ == "__main__":
-    main()
+cap.release()
+pygame.quit()
