@@ -2,7 +2,7 @@
 
 Mini game interaktif berbasis webcam. Gerakkan marker berwarna hijau di depan kamera untuk memecahkan balon dan mendapatkan skor. Hindari bom, karena menyentuh bom akan mengakhiri permainan.
 
-Deteksi marker menggunakan segmentasi warna HSV dari OpenCV, tanpa MediaPipe.
+Deteksi marker menggunakan segmentasi warna HSV dari OpenCV.
 
 ## Fitur
 
