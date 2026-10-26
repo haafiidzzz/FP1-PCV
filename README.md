@@ -74,11 +74,6 @@ Deteksi marker menggunakan segmentasi warna HSV dari OpenCV.
 
 Tekan `Q` untuk keluar. Tombol menu juga menyediakan pilihan **Exit**.
 
-## Pemecahan Masalah
-
-- **Kamera tidak terbuka:** pastikan webcam tidak sedang digunakan aplikasi lain. Game menggunakan indeks kamera `0`; jika webcam yang dipakai berbeda, ubah nilai `cam_index` di `game_balon.py`.
-- **Marker tidak terdeteksi:** gunakan marker hijau yang terlihat jelas, pastikan pencahayaan cukup, dan jauhkan warna hijau lain dari area kamera.
-
 ## Identitas
 
 - **Nama:** Hafidz Ulum Ramadhani
