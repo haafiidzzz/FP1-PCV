@@ -4,6 +4,10 @@ Mini game interaktif berbasis webcam. Gerakkan marker berwarna merah di depan ka
 
 Deteksi marker menggunakan segmentasi warna HSV dari OpenCV.
 
+## Screenshot
+
+![Tampilan game Pop Balon](assets/screenshot-game.png)
+
 ## Fitur
 
 - Jendela game berukuran 800 × 600.
