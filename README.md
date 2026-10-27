@@ -1,12 +1,16 @@
 # Pop Balon
 
-Mini game interaktif berbasis webcam. Gerakkan marker berwarna hijau di depan kamera untuk memecahkan balon dan mendapatkan skor. Hindari bom, karena menyentuh bom akan mengakhiri permainan.
+Mini game interaktif berbasis webcam. Gerakkan marker berwarna merah di depan kamera untuk memecahkan balon dan mendapatkan skor. Hindari bom, karena menyentuh bom akan mengakhiri permainan.
 
 Deteksi marker menggunakan segmentasi warna HSV dari OpenCV, tanpa MediaPipe.
 
 ## Fitur
 
-- Melacak marker hijau melalui webcam.
+- Jendela game berukuran 800 × 600.
+- Melacak marker merah melalui webcam.
+- Menggunakan latar grafis game, sehingga tampilan webcam tidak ditampilkan.
+- Menampilkan sprite balon dan bom.
+- Menyesuaikan rentang warna marker lewat kalibrasi HSV.
 - Menggerakkan dan memecahkan balon dengan marker.
 - Menambah skor sebesar 10 untuk setiap balon yang dipecahkan.
 - Memunculkan bom yang mengakhiri permainan saat tersentuh.
@@ -66,18 +70,24 @@ Deteksi marker menggunakan segmentasi warna HSV dari OpenCV, tanpa MediaPipe.
 
 ## Cara Bermain
 
-1. Pastikan webcam terhubung dan izinkan akses kamera jika diminta.
-2. Klik **Start** pada menu.
-3. Arahkan marker berwarna hijau ke balon untuk memecahkannya.
-4. Hindari bom.
-5. Klik **Main Lagi** untuk bermain kembali setelah game over.
+1. Pastikan webcam terhubung dan izinkan akses kamera jika diminta. Kamera hanya digunakan untuk melacak marker; gambar kamera tidak ditampilkan sebagai latar game.
+2. Jika marker belum terdeteksi dengan baik, klik **Kalibrasi** pada menu.
+3. Sesuaikan slider HSV (H1 dan H2 untuk dua rentang merah) sambil melihat pratinjau; area putih pada tampilan mask adalah warna yang akan terdeteksi.
+4. Tekan `S` untuk menerapkan hasil kalibrasi, atau `Esc` untuk membatalkan.
+5. Klik **Start** dan arahkan marker berwarna merah ke balon untuk memecahkannya.
+6. Hindari bom.
+7. Klik **Main Lagi** untuk bermain kembali setelah game over.
 
 Tekan `Q` untuk keluar. Tombol menu juga menyediakan pilihan **Exit**.
 
 ## Pemecahan Masalah
 
 - **Kamera tidak terbuka:** pastikan webcam tidak sedang digunakan aplikasi lain. Game menggunakan indeks kamera `0`; jika webcam yang dipakai berbeda, ubah nilai `cam_index` di `game_balon.py`.
-- **Marker tidak terdeteksi:** gunakan marker hijau yang terlihat jelas, pastikan pencahayaan cukup, dan jauhkan warna hijau lain dari area kamera.
+- **Marker tidak terdeteksi:** gunakan marker merah yang terlihat jelas, pastikan pencahayaan cukup, dan jauhkan warna merah lain dari area kamera.
+
+## Atribusi Asset
+
+Sprite balon (U+1F388) dan bom (U+1F4A3) berasal dari [Twemoji](https://github.com/jdecked/twemoji/tree/main/assets/72x72) dan digunakan tanpa perubahan. Keduanya berlisensi [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/); salinan lisensi disertakan di [assets/LICENSE-GRAPHICS.txt](assets/LICENSE-GRAPHICS.txt).
 
 ## Identitas
 
