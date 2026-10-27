@@ -2,7 +2,7 @@
 
 Mini game interaktif berbasis webcam. Gerakkan marker berwarna merah di depan kamera untuk memecahkan balon dan mendapatkan skor. Hindari bom, karena menyentuh bom akan mengakhiri permainan.
 
-Deteksi marker menggunakan segmentasi warna HSV dari OpenCV, tanpa MediaPipe.
+Deteksi marker menggunakan segmentasi warna HSV dari OpenCV.
 
 ## Fitur
 
@@ -79,11 +79,6 @@ Deteksi marker menggunakan segmentasi warna HSV dari OpenCV, tanpa MediaPipe.
 7. Klik **Main Lagi** untuk bermain kembali setelah game over.
 
 Tekan `Q` untuk keluar. Tombol menu juga menyediakan pilihan **Exit**.
-
-## Pemecahan Masalah
-
-- **Kamera tidak terbuka:** pastikan webcam tidak sedang digunakan aplikasi lain. Game menggunakan indeks kamera `0`; jika webcam yang dipakai berbeda, ubah nilai `cam_index` di `game_balon.py`.
-- **Marker tidak terdeteksi:** gunakan marker merah yang terlihat jelas, pastikan pencahayaan cukup, dan jauhkan warna merah lain dari area kamera.
 
 ## Atribusi Asset
 
