@@ -84,10 +84,6 @@ Deteksi marker menggunakan segmentasi warna HSV dari OpenCV.
 
 Tekan `Q` untuk keluar. Tombol menu juga menyediakan pilihan **Exit**.
 
-## Atribusi Asset
-
-Sprite balon (U+1F388) dan bom (U+1F4A3) berasal dari [Twemoji](https://github.com/jdecked/twemoji/tree/main/assets/72x72) dan digunakan tanpa perubahan. Keduanya berlisensi [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/); salinan lisensi disertakan di [assets/LICENSE-GRAPHICS.txt](assets/LICENSE-GRAPHICS.txt).
-
 ## Identitas
 
 - **Nama:** Hafidz Ulum Ramadhani
